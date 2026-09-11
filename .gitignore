@@ -31,7 +31,11 @@
 /snapshots
 
 
+.claude
 .claude/
 CLAUDE.md
 CLAUDE.local.md
 AGENTS.md
+.agents
+
+package-lock.json
