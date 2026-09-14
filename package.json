@@ -4,7 +4,8 @@
     "test": "hardhat test",
     "test:ts": "hardhat test nodejs",
     "test:sol": "hardhat test solidity",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy:amoy": "hardhat run scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.1.8",

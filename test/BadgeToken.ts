@@ -39,18 +39,14 @@ describe("BadgeToken", async function () {
       );
 
       await viem.assertions.emitWithArgs(
-        badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {
-          account: admin.account,
-        }),
+        badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {account: admin.account}),
         badge,
         "BadgeTypeCreated",
         [1n, "ipfs-less://badge-1.json", false],
       );
 
       await viem.assertions.emitWithArgs(
-        badge.write.createBadgeType(["ipfs-less://badge-2.json", true], {
-          account: admin.account,
-        }),
+        badge.write.createBadgeType(["ipfs-less://badge-2.json", true], {account: admin.account}),
         badge,
         "BadgeTypeCreated",
         [2n, "ipfs-less://badge-2.json", true],

@@ -46,6 +46,7 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
     }
 
     function isTransferable(uint256 id) public view returns (bool) {
+        if (!_badgeTypes[id].exists) revert BadgeTypeDoesNotExist(id);
         return _badgeTypes[id].transferable;
     }
 
