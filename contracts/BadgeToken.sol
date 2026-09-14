@@ -22,6 +22,7 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
 
     error BadgeTypeDoesNotExist(uint256 id);
     error BadgeNotTransferable(uint256 id);
+    error ApprovalNotAllowed();
 
     event BadgeTypeCreated(uint256 indexed id, string uri, bool transferable);
     event BadgeTransferabilityUpdated(uint256 indexed id, bool transferable);
@@ -86,5 +87,12 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    // Badges are non-delegable: operator approval is disabled entirely, not just
+    // gated at transfer time. This is the single choke point `setApprovalForAll`
+    // funnels through, mirroring how `_update` is the choke point for transfers.
+    function _setApprovalForAll(address, address, bool) internal pure override {
+        revert ApprovalNotAllowed();
     }
 }

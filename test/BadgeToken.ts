@@ -226,35 +226,36 @@ describe("BadgeToken", async function () {
       assert.equal(await badge.read.balanceOf([bob.account.address, 1n]), 0n);
     });
 
-    it("blocks an operator-approved transfer just like a direct one", async function () {
-      const { badge, admin, minter, alice, bob, operator } =
-        await networkHelpers.loadFixture(deployBadgeToken);
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
-      await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
-        account: minter.account,
-      });
+    it("blocks setApprovalForAll entirely, so no operator can ever be approved", async function () {
+      const { badge, alice, bob, operator } = await networkHelpers.loadFixture(deployBadgeToken);
 
-      // alice approves operator for everything — approval itself must succeed,
-      // it's the ensuing transfer that has to be blocked.
-      await badge.write.setApprovalForAll([operator.account.address, true], {
-        account: alice.account,
-      });
+      await viem.assertions.revertWithCustomError(
+        badge.write.setApprovalForAll([operator.account.address, true], {
+          account: alice.account,
+        }),
+        badge,
+        "ApprovalNotAllowed",
+      );
+
       assert.equal(
         await badge.read.isApprovedForAll([
           alice.account.address,
           operator.account.address,
         ]),
-        true,
+        false,
       );
 
+      // with no approval ever possible, a would-be operator transfer falls
+      // back to the standard ERC1155 "missing approval" error — it never even
+      // reaches our BadgeNotTransferable check.
       await viem.assertions.revertWithCustomErrorWithArgs(
         badge.write.safeTransferFrom(
           [alice.account.address, bob.account.address, 1n, 1n, "0x"],
           { account: operator.account },
         ),
         badge,
-        "BadgeNotTransferable",
-        [1n],
+        "ERC1155MissingApprovalForAll",
+        [operator.account.address, alice.account.address],
       );
     });
 
