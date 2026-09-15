@@ -8,7 +8,7 @@
 - **검증 상태**: Polygonscan에 "Source Code Verified / Exact Match"로 표시됨 (Sourcify 경유). Sourcify 리포지토리: https://sourcify.dev/server/repo-ui/80002/0xe2701e6e1219616e526fc933146c9389c9779d2e
 - **배포 스크립트**: `scripts/deploy.ts` (`npm run deploy:amoy`)
 - **생성자 인자**: `defaultAdmin`, `pauser`, `minter` — 이 배포에서는 셋 다 배포자 본인 주소로 동일하게 설정(백엔드/릴레이어 없이 관리자 지갑이 직접 서명하는 구조이므로).
-
+---
 ## 프로젝트 구성
 
 ```
@@ -21,7 +21,7 @@ scripts/check-amoy-network.ts      Amoy RPC 연결 확인
 scripts/check-balance.ts           배포자 잔액 확인
 scripts/estimate-deploy-gas.ts     배포/민팅 gas 비용 추정
 ```
-
+---
 ## 사용법
 
 ### 테스트
@@ -31,13 +31,14 @@ npm test          # 전체 (Solidity + TypeScript)
 npm run test:ts    # TypeScript(viem)만
 npm run test:sol   # Solidity만
 ```
+---
 
 ### 타입 체크
 
 ```shell
 npm run typecheck
 ```
-
+---
 ### Amoy 배포
 
 `.env`에 `AMOY_RPC_URL`, `PRIVATE_KEY` 필요(둘 다 이미 설정돼 있음). `BADGE_ADMIN_ADDRESS`/`BADGE_PAUSER_ADDRESS`/`BADGE_MINTER_ADDRESS`는 선택 사항 — 안 정하면 배포자 주소로 기본 설정됨.
@@ -51,10 +52,8 @@ npm run deploy:amoy
 ```shell
 npx hardhat verify --network amoy <주소> <defaultAdmin> <pauser> <minter>
 ```
-
+---
 ## 재시작하면 어떻게 되나
-
-이 과제엔 상태를 들고 있다가 죽을 수 있는 프로세스가 세 군데 있고, 그중 어디를 말하느냐에 따라 답이 완전히 다릅니다.
 
 **① 컨트랙트/블록체인 자체 — 해당 사항 없음.** "재시작"이라는 개념 자체가 성립하지 않습니다. 스마트 컨트랙트는 껐다 켤 수 있는 프로세스가 아니라 블록체인에 기록된 코드+상태이고, 그 상태(잔액, role, 배지 타입, `transferable` 플래그)는 우리 로컬 개발 환경이나 어떤 서버가 재시작되든 전혀 영향받지 않습니다. 이 프로젝트에는 개인키를 들고 있는 백엔드/릴레이어 서버가 없습니다 — 관리자 민팅은 관리자 본인의 지갑(MetaMask)이 wagmi를 통해 직접 서명하므로, "서버가 tx 서명 도중 죽었다"는 시나리오 자체가 존재하지 않습니다.
 
