@@ -52,7 +52,7 @@ describe("BadgeToken failure scenarios", async function () {
       // (UUPS is explicitly out of scope), so this is permanent for this
       // deployment.
       await viem.assertions.revertWithCustomErrorWithArgs(
-        badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {
+        badge.write.createBadgeType(["https://example.com/badge-1.json", false], {
           account: admin.account,
         }),
         badge,
@@ -76,7 +76,7 @@ describe("BadgeToken failure scenarios", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {
+      await badge.write.createBadgeType(["https://example.com/badge-1.json", false], {
         account: admin.account,
       });
 
@@ -95,7 +95,7 @@ describe("BadgeToken failure scenarios", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {
+      await badge.write.createBadgeType(["https://example.com/badge-1.json", false], {
         account: admin.account,
       });
       // id 2 is intentionally never registered.
@@ -147,7 +147,7 @@ describe("BadgeToken failure scenarios", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await badge.write.createBadgeType(["ipfs-less://badge-1.json", true], {
+      await badge.write.createBadgeType(["https://example.com/badge-1.json", true], {
         account: admin.account,
       });
 
@@ -196,7 +196,7 @@ describe("BadgeToken failure scenarios", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await badge.write.createBadgeType(["ipfs-less://badge-1.json", true], {
+      await badge.write.createBadgeType(["https://example.com/badge-1.json", true], {
         account: admin.account,
       });
 
@@ -240,7 +240,7 @@ describe("BadgeToken failure scenarios", async function () {
       const { badge, admin, minter, alice, bob } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await badge.write.createBadgeType(["ipfs-less://badge-1.json", true], {
+      await badge.write.createBadgeType(["https://example.com/badge-1.json", true], {
         account: admin.account,
       });
 

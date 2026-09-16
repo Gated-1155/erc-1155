@@ -23,6 +23,7 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
     error BadgeTypeDoesNotExist(uint256 id);
     error BadgeNotTransferable(uint256 id);
     error ApprovalNotAllowed();
+    error InvalidUri();
 
     event BadgeTypeCreated(uint256 indexed id, string uri, bool transferable);
     event BadgeTransferabilityUpdated(uint256 indexed id, bool transferable);
@@ -34,6 +35,7 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
     }
 
     function createBadgeType(string calldata uri_, bool transferable_) public onlyRole(DEFAULT_ADMIN_ROLE) returns (uint256 id) {
+        _validateUri(uri_);
         id = _nextBadgeId++;
         _badgeTypes[id] = BadgeType({uri: uri_, transferable: transferable_, exists: true});
         emit BadgeTypeCreated(id, uri_, transferable_);
@@ -96,5 +98,17 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
     // funnels through, mirroring how `_update` is the choke point for transfers.
     function _setApprovalForAll(address, address, bool) internal pure override {
         revert ApprovalNotAllowed();
+    }
+
+    function _validateUri(string calldata uri_) private pure {
+        bytes calldata data = bytes(uri_);
+        if (data.length < 13) revert InvalidUri();
+        if (data[0] != "h" || data[1] != "t" || data[2] != "t" || data[3] != "p" || data[4] != "s" || data[5] != ":" || data[6] != "/" || data[7] != "/") {
+            revert InvalidUri();
+        }
+        bytes memory suffix = ".json";
+        for (uint256 i = 0; i < 5; i++) {
+            if (data[data.length - 5 + i] != suffix[i]) revert InvalidUri();
+        }
     }
 }

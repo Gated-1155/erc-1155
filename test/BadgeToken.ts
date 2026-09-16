@@ -39,17 +39,17 @@ describe("BadgeToken", async function () {
       );
 
       await viem.assertions.emitWithArgs(
-        badge.write.createBadgeType(["ipfs-less://badge-1.json", false], {account: admin.account}),
+        badge.write.createBadgeType(["https://example.com/badge-1.json", false], {account: admin.account}),
         badge,
         "BadgeTypeCreated",
-        [1n, "ipfs-less://badge-1.json", false],
+        [1n, "https://example.com/badge-1.json", false],
       );
 
       await viem.assertions.emitWithArgs(
-        badge.write.createBadgeType(["ipfs-less://badge-2.json", true], {account: admin.account}),
+        badge.write.createBadgeType(["https://example.com/badge-2.json", true], {account: admin.account}),
         badge,
         "BadgeTypeCreated",
-        [2n, "ipfs-less://badge-2.json", true],
+        [2n, "https://example.com/badge-2.json", true],
       );
 
       assert.equal(await badge.read.isTransferable([1n]), false);
@@ -77,9 +77,9 @@ describe("BadgeToken", async function () {
       const { badge, admin } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
 
-      assert.equal(await badge.read.uri([1n]), "ipfs-less://badge-1.json");
+      assert.equal(await badge.read.uri([1n]), "https://example.com/badge-1.json");
     });
 
     it("reverts for an unregistered id", async function () {
@@ -92,6 +92,40 @@ describe("BadgeToken", async function () {
         [1n],
       );
     });
+
+    it("rejects a URI that isn't https://", async function () {
+      const { badge, admin } = await networkHelpers.loadFixture(deployBadgeToken);
+
+      await viem.assertions.revertWithCustomError(
+        badge.write.createBadgeType(["ftp://example.com/badge.json", false], {
+          account: admin.account,
+        }),
+        badge,
+        "InvalidUri",
+      );
+    });
+
+    it("rejects a URI that doesn't end in .json", async function () {
+      const { badge, admin } = await networkHelpers.loadFixture(deployBadgeToken);
+
+      await viem.assertions.revertWithCustomError(
+        badge.write.createBadgeType(["https://example.com/badge.png", false], {
+          account: admin.account,
+        }),
+        badge,
+        "InvalidUri",
+      );
+    });
+
+    it("rejects a plain non-URL string - the shape of an actual admin typo", async function () {
+      const { badge, admin } = await networkHelpers.loadFixture(deployBadgeToken);
+
+      await viem.assertions.revertWithCustomError(
+        badge.write.createBadgeType(["123", false], { account: admin.account }),
+        badge,
+        "InvalidUri",
+      );
+    });
   });
 
   describe("Minting", async function () {
@@ -99,7 +133,7 @@ describe("BadgeToken", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
 
       await badge.write.mint([alice.account.address, 1n, 3n, "0x"], {
         account: minter.account,
@@ -130,7 +164,7 @@ describe("BadgeToken", async function () {
       const { badge, admin, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
 
       await viem.assertions.revertWithCustomErrorWithArgs(
         badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
@@ -147,7 +181,7 @@ describe("BadgeToken", async function () {
     it("blocks a direct safeTransferFrom on a non-transferable badge", async function () {
       const { badge, admin, minter, alice, bob } =
         await networkHelpers.loadFixture(deployBadgeToken);
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
       await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
         account: minter.account,
       });
@@ -172,7 +206,7 @@ describe("BadgeToken", async function () {
     it("allows safeTransferFrom on a transferable badge", async function () {
       const { badge, admin, minter, alice, bob } =
         await networkHelpers.loadFixture(deployBadgeToken);
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", true);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", true);
       await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
         account: minter.account,
       });
@@ -193,8 +227,8 @@ describe("BadgeToken", async function () {
       const { badge, admin, minter, alice, bob } =
         await networkHelpers.loadFixture(deployBadgeToken);
       // id 1: transferable, id 2: non-transferable
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", true);
-      await createBadgeType(badge, admin, "ipfs-less://badge-2.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", true);
+      await createBadgeType(badge, admin, "https://example.com/badge-2.json", false);
       await badge.write.mintBatch(
         [alice.account.address, [1n, 2n], [1n, 1n], "0x"],
         { account: minter.account },
@@ -258,7 +292,7 @@ describe("BadgeToken", async function () {
     it("reflects a setTransferable toggle on the very next transfer attempt", async function () {
       const { badge, admin, minter, alice, bob } =
         await networkHelpers.loadFixture(deployBadgeToken);
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
       await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
         account: minter.account,
       });
@@ -294,7 +328,7 @@ describe("BadgeToken", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
 
       await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
         account: minter.account,
@@ -310,7 +344,7 @@ describe("BadgeToken", async function () {
       const { badge, admin, minter, alice } = await networkHelpers.loadFixture(
         deployBadgeToken,
       );
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
       await badge.write.mint([alice.account.address, 1n, 1n, "0x"], {
         account: minter.account,
       });
@@ -330,7 +364,7 @@ describe("BadgeToken", async function () {
     it("blocks minting while paused, and only PAUSER_ROLE can pause", async function () {
       const { badge, admin, pauser, minter, alice } =
         await networkHelpers.loadFixture(deployBadgeToken);
-      await createBadgeType(badge, admin, "ipfs-less://badge-1.json", false);
+      await createBadgeType(badge, admin, "https://example.com/badge-1.json", false);
 
       await viem.assertions.revertWithCustomErrorWithArgs(
         badge.write.pause({ account: admin.account }),
