@@ -235,5 +235,58 @@ describe("BadgeToken failure scenarios", async function () {
         0n,
       );
     });
+
+    it("cannot steal an unrelated holder's balance — no approval exists regardless of reentrancy timing", async function () {
+      const { badge, admin, minter, alice, bob } = await networkHelpers.loadFixture(
+        deployBadgeToken,
+      );
+      await badge.write.createBadgeType(["ipfs-less://badge-1.json", true], {
+        account: admin.account,
+      });
+
+      const attacker = await viem.deployContract("MaliciousReceiver");
+
+      // alice and bob each independently hold the same badge id.
+      await badge.write.mint([alice.account.address, 1n, 5n, "0x"], {
+        account: minter.account,
+      });
+      await badge.write.mint([bob.account.address, 1n, 3n, "0x"], {
+        account: minter.account,
+      });
+
+      // configure the reentrant call to pull FROM bob (never approved us) instead
+      // of from our own just-credited balance.
+      await attacker.write.configure([
+        badge.address,
+        attacker.address, // reentryTo: send the "stolen" tokens to ourselves
+        1n,
+        3n,
+        true, // attackOnReceive
+      ]);
+      await attacker.write.setStealFrom([bob.account.address]);
+
+      // alice's transfer to the attacker triggers the hook; the attacker tries
+      // to use that moment to pull bob's balance, not its own.
+      await viem.assertions.revertWithCustomErrorWithArgs(
+        badge.write.safeTransferFrom(
+          [alice.account.address, attacker.address, 1n, 1n, "0x"],
+          { account: alice.account },
+        ),
+        badge,
+        "ERC1155MissingApprovalForAll",
+        [attacker.address, bob.account.address],
+      );
+
+      // whole tx rolled back — nobody's balance moved, including alice's.
+      assert.equal(
+        await badge.read.balanceOf([alice.account.address, 1n]),
+        5n,
+      );
+      assert.equal(await badge.read.balanceOf([bob.account.address, 1n]), 3n);
+      assert.equal(
+        await badge.read.balanceOf([attacker.address, 1n]),
+        0n,
+      );
+    });
   });
 });

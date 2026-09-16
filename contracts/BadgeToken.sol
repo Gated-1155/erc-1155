@@ -78,9 +78,10 @@ contract BadgeToken is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable 
     // The following functions are overrides required by Solidity.
 
     function _update(address from, address to, uint256[] memory ids, uint256[] memory values) internal override(ERC1155, ERC1155Pausable) {
-        if (from != address(0) && to != address(0)) {
-            for (uint256 i = 0; i < ids.length; i++) {
-                if (!_badgeTypes[ids[i]].transferable) revert BadgeNotTransferable(ids[i]);
+        for (uint256 i = 0; i < ids.length; i++) {
+            if (!_badgeTypes[ids[i]].exists) revert BadgeTypeDoesNotExist(ids[i]);
+            if (from != address(0) && to != address(0) && !_badgeTypes[ids[i]].transferable) {
+                revert BadgeNotTransferable(ids[i]);
             }
         }
         super._update(from, to, ids, values);
