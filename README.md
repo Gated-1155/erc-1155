@@ -1,5 +1,9 @@
 # BadgeToken — ERC-1155 배지 dApp (전송 차단)
 
+> **⚠️ 레거시 저장소입니다. 메인은 [`onchain-contract`](https://github.com/Gated-1155/onchain-contract)입니다.**
+> 이 저장소는 같은 컨트랙트의 초기 버전(viem + `node:test`)으로, 배지 ID별 `transferable` 플래그를 쓰던 시기의 구현이며 비교·기록용으로만 남겨 두었습니다. 최신 설계(컨트랙트 전체 단일 스위치)와 배포 주소, 프론트엔드는 `onchain-contract`와 [`onchain-client`](https://github.com/Gated-1155/onchain-client)를 참고하세요.
+> 아래 배포된 컨트랙트는 메타데이터 URI가 이전 조직 주소를 가리키고 있어, 배지 이름/이미지가 표시되지 않을 수 있습니다.
+
 배지 ID별로 `transferable` 플래그를 가진 ERC-1155 컨트랙트. 플래그가 `false`인 배지는 직접 전송·배치 전송·operator 경유 전송 어떤 경로로도 옮길 수 없다. 상세 설계 근거와 전송 경로 조사·실패 시나리오는 프로젝트 Notion 문서 참고.
 
 ## Polygon Amoy 배포 정보

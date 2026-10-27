@@ -39,3 +39,5 @@ AGENTS.md
 .agents
 
 package-lock.json
+.idea/
+.DS_Store
